@@ -21,8 +21,8 @@ args = vars(ap.parse_args())
 
 # if the video argument is None, then we are reading from webcam
 if args.get("video", None) is None:
-	vs = VideoStream(src=0).start()
-	time.sleep(2.0)
+    vs = VideoStream(src=0).start()
+    time.sleep(2.0)
 
 # otherwise, we are reading from a video file
 else:
@@ -30,14 +30,17 @@ else:
 
 # initialize the first frame in the video stream
 firstFrame = None
+frames_array = []
 # firstFrame = cv2.imread('2.png', 0)
 # firstFrame = imutils.resize(firstFrame, width=500)
 # firstFrame = cv2.GaussianBlur(firstFrame, (21, 21), 0)
 lastUploaded = datetime.datetime.now()
 motionCounter = 0
+writer = None
+(h, w) = (None, None)
 # Define the codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+# out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
 # loop over the frames of the video
 while True:
@@ -94,7 +97,10 @@ while True:
                 motionCounter += 1
                 print("inside occupied",motionCounter)
                 # write the flipped frame
-                out.write(frame)
+                # frame = imutils.resize(frame, width=300)
+                (h, w) = frame.shape[:2]
+                frames_array.append(frame)
+                
 
                 # check to see if the number of frames with consistent motion is
                 # high enough
@@ -105,7 +111,7 @@ while True:
                         print("limit exceeded",motionCounter)
                         lastUploaded = timestamp
                         motionCounter = 0
-                        out.release()
+                        # out.release()
 
                     # update the last uploaded timestamp and reset the motion
                     # counter
@@ -135,7 +141,13 @@ while True:
 
 # os.system('spd-say "Suspicious activity detected"')
 #subprocess.call(['/usr/bin/snap/vlc', ""])
-
+writer = cv2.VideoWriter("custom.avi", fourcc, 20,(w , h ), True)
+key = cv2.waitKey(1) & 0xFF
+print(frames_array)
+for i in range(len(frames_array)):
+    # writing to a image array
+    writer.write(frames_array[i])  
+writer.release()
 # cleanup the camera and close any open windows
 vs.stop() if args.get("video", None) is None else vs.release()
 cv2.destroyAllWindows()
