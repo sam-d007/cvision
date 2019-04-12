@@ -12,6 +12,18 @@ import datetime
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
 
+def write(vid):
+    name = str(datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p")) + ".avi"
+    print(name)
+    writer = cv2.VideoWriter(name, fourcc, 20 ,(w , h ), True)
+    print(len(vid))
+    # print(vid)
+    for j in range(len(vid)):
+        # writing to a image array
+        writer.write(vid[j])
+    writer.release()
+
+
 #initialize the static variables
 frames_array =[]
 (h, w) = (None, None)
@@ -23,7 +35,8 @@ lastUploaded = datetime.datetime.now()
 motionCounter = 0
 i = 0 
 name = ""
-
+m = 0
+copy = []
 #read the video stream
 
 while True:
@@ -57,6 +70,7 @@ while True:
         # if the contour is too small, ignore it
         if cv2.contourArea(c) < 1000:
             continue
+            # text = "Unoccupied"
 
         # compute the bounding box for the contour, draw it on the frame,
         # and update the text
@@ -64,13 +78,32 @@ while True:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
 
+    print(text)
+    print(m)
     if text == "Occupied":
-        if (timestamp - lastUploaded).seconds >= 1:
-            (h, w) = frame.shape[:2]
+        print("inside occ")
+        # if (timestamp - lastUploaded).seconds >= 4:
+        (h, w) = frame.shape[:2]
+        # frames_array.append(frame) 
+        i += 1
+        name = str(i) + ".avi"   
+        m+=1
+        if m >= 30:
             frames_array.append(frame) 
-            i += 1
-            name = str(i) + ".avi"
-               
+
+            # print("hrtr")
+            # copy = frames_array[0:m+1]
+            # write(copy)
+            # m = 0
+            # lastUploaded = timestamp
+    
+    elif text == "Unouccupied":
+        print("unoccu")
+        if m != 0 and len(frames_array) != 0:
+            m = 0
+            write(frames_array)
+            frames_array = []
+
 
     # draw the text and timestamp on the frame
 
@@ -93,10 +126,10 @@ while True:
 
 
 # writer = cv2.VideoWriter("custom.avi", fourcc, 30 ,(w , h ), True)
-writer = cv2.VideoWriter(name, fourcc, 30 ,(w , h ), True)
-for j in range(len(frames_array)):
-    # writing to a image array
-    writer.write(frames_array[j])
+# writer = cv2.VideoWriter(name, fourcc, 30 ,(w , h ), True)
+# for j in range(len(frames_array)):
+#     # writing to a image array
+#     writer.write(frames_array[j])
 
 key = cv2.waitKey(1) & 0xFF
 # print(frames_array)
@@ -104,8 +137,7 @@ key = cv2.waitKey(1) & 0xFF
 #     # writing to a image array
 #     writer.write(frames_array[i])  
 
-writer.release()
 # cleanup the camera and close any open windows
 vs.stop()
-vs.release()
+# vs.release()
 cv2.destroyAllWindows()

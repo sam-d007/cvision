@@ -23,6 +23,9 @@ args = vars(ap.parse_args())
 
 # vs = VideoStream(src=0).start()
 vs = cv2.VideoCapture(0)
+print(vs.get(cv2.CAP_PROP_FPS))
+vs.stop()
+exit()
 time.sleep(2.0)
 frames_array = []
 # initialize the FourCC, video writer, dimensions of the frame, and
