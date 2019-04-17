@@ -1,7 +1,7 @@
 from skimage.io import imread
 from skimage.filters import threshold_otsu
 import matplotlib.pyplot as plt
-
+import cv2
 # filename = './video12.mp4'
 
 # import cv2
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 # car image -> grayscale image -> binary image
 import imutils
 # car_image = imread("./output/frame%d.jpg"%(count-1), as_gray=True)
-car_image = imread("./car.png", as_gray=True)
+car_image = imread("./3.jpg", as_gray=True)
 # car_image = imutils.rotate(car_image, 270)
 # it should be a 2 dimensional array
 print(car_image.shape)
@@ -34,6 +34,7 @@ print(car_image.shape)
 # will make it range between 0 & 255 (something we can relate better with
 
 gray_car_image = car_image * 255
+gray_car_image = cv2.GaussianBlur(gray_car_image,(5,5),0)
 fig, (ax1, ax2) = plt.subplots(1, 2)
 ax1.imshow(gray_car_image, cmap="gray")
 threshold_value = threshold_otsu(gray_car_image)
